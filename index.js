@@ -1,4 +1,5 @@
 const express = require('express');
+require("dotenv").config();
 const cors = require('cors')
 const app = express();
 const port = process.env.PORT || 3000;
@@ -26,10 +27,12 @@ const verifyJWT = async (req, res, next) => {
   }
 }
 
-const serviceAccount = require("./ServiceKey.json");
+const decoded = Buffer.from(process.env.srvice_key, "base64").toString("utf8");
+const serviceAccount = JSON.parse(decoded);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
+
 
 const verifyToken = async (req, res, next) => {
   const authorization = req.headers.authorization;
@@ -54,7 +57,7 @@ const verifyToken = async (req, res, next) => {
 
 
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -73,7 +76,7 @@ async function run() {
     const userCollection =db.collection('user')
     const staffeRequetsCollection =db.collection('user')
 
-    // role middlewares
+   
     const verifyADMIN = async (req, res, next) => {
       const email = req.tokenEmail
       const user = await userCollection.findOne({ email })
@@ -173,13 +176,13 @@ async function run() {
       res.send(result)
     });
 
-     // get a user's role
+     
     app.get('/user/role', verifyJWT, async (req, res) => {
       const result = await userCollection.findOne({ email: req.tokenEmail })
       res.send({ role: result?.role })
     })
 
-    // save become-staffe request
+    
     app.post('/become-staffe', verifyJWT, verifyADMIN,async (req, res) => {
       const email = req.tokenEmail
       const alreadyExists = await staffeRequetsCollection.findOne({ email })
@@ -192,13 +195,13 @@ async function run() {
       res.send(result)
     })
 
-    // get all seller requests for admin
+    
     app.get('/staffe-requests', verifyJWT,verifyADMIN, async (req, res) => {
       const result = await staffeRequetsCollection.find().toArray()
       res.send(result)
     })
 
-    // get all users for admin
+    
     app.get('/users', verifyJWT,verifyADMIN,  async (req, res) => {
       const adminEmail = req.tokenEmail
       const result = await userCollection
@@ -207,27 +210,19 @@ async function run() {
       res.send(result)
     })
 
-    // update a user's role
+   
     app.patch('/update-role', verifyJWT,verifyADMIN, async (req, res) => {
       const { email, role } = req.body
       const result = await userCollection.updateOne(
         { email },
         { $set: { role } }
       )
-      // await staffeRequetsCollection.deleteOne({ email })
+     
 
       res.send(result)
     })
 
-    // app.post('/user', async(req,res) => {
-    //   const userData =req.query.email
-    //   const result =await userCollection.find({created_by: email}).toArray()
-    //   console.log(email,result)
-    //   res.send({
-    //     success:true,
-    //     result
-    //   })
-    // })
+    
 
 
 
@@ -235,8 +230,8 @@ async function run() {
 
     
    
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
