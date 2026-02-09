@@ -69,12 +69,13 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
  
-    await client.connect();
+    // await client.connect();
 
     const db = client.db('infrastructur')
     const issuesdetailsCollection = db.collection('issues')
     const userCollection =db.collection('user')
     const staffeRequetsCollection =db.collection('user')
+    const paymentCollection = db.collection('payment')
 
    
     const verifyADMIN = async (req, res, next) => {
@@ -209,6 +210,28 @@ async function run() {
         .toArray()
       res.send(result)
     })
+
+    app.post('/payment/:id', async (req,res)=> {
+      const data = req.body
+      // const query = new ObjectId(id)
+      const result = await paymentCollection.insertOne(data)
+      res.send({
+        success:true,
+        result
+      })
+    });
+
+    app.get('/payment/:id',verifyToken, async(req,res) => {
+      const {id} =req.params
+      console.log(id)
+      const query = new ObjectId(id)
+      // const result = await issuesdetailsCollection.findOne({_id:id})
+       const result = await paymentCollection.find({id:query})
+      res.send({
+        success :true,
+        result
+      })
+    });
 
    
     app.patch('/update-role', verifyJWT,verifyADMIN, async (req, res) => {
