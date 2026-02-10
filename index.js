@@ -66,8 +66,8 @@ const client = new MongoClient(uri, {
   }
 });
 
-async function run() {
-  try {
+// async function run() {
+//   try {
  
     // await client.connect();
 
@@ -88,13 +88,13 @@ async function run() {
 
       next()
     }
-    const verifySELLER = async (req, res, next) => {
+    const verifyStaffe = async (req, res, next) => {
       const email = req.tokenEmail
       const user = await userCollection.findOne({ email })
-      if (user?.role !== 'seller')
+      if (user?.role !== 'staffe')
         return res
           .status(403)
-          .send({ message: 'Seller only Actions!', role: user?.role })
+          .send({ message: 'Staffe only Actions!', role: user?.role })
 
       next()
     }
@@ -221,16 +221,20 @@ async function run() {
       })
     });
 
-    app.get('/payment/:id',verifyToken, async(req,res) => {
-      const {id} =req.params
-      console.log(id)
-      const query = new ObjectId(id)
-      // const result = await issuesdetailsCollection.findOne({_id:id})
-       const result = await paymentCollection.find({id:query})
-      res.send({
-        success :true,
-        result
-      })
+     app.get('/payment', async (req,res) => {
+      let query={}
+      const email =req.query.email
+      // const category =req.query.category
+      if (email) {
+        query.providerEmail =email
+      }
+      // if (category) {
+      //   query.category=category
+      // }
+      const result =await paymentCollection.find(query).toArray()
+      console.log(result)
+      res.send(result)
+      
     });
 
    
@@ -255,12 +259,12 @@ async function run() {
    
     // await client.db("admin").command({ ping: 1 });
     // console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
-  }
-}
-run().catch(console.dir);
+//   } finally {
+//     // Ensures that the client will close when you finish/error
+//     // await client.close();
+//   }
+// }
+// run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
