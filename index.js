@@ -226,7 +226,7 @@ const client = new MongoClient(uri, {
       const email =req.query.email
       // const category =req.query.category
       if (email) {
-        query["clinte.email"] = email
+        query["payByEmail"] = email
       }
       
       const result =await paymentCollection.find(query).toArray()
