@@ -117,7 +117,7 @@ const client = new MongoClient(uri, {
 
     app.post('/issues', async (req,res)=> {
       const data = req.body
-      // const query = new ObjectId(id)
+ 
       const result = await issuesdetailsCollection.insertOne(data)
       res.send({
         success:true,
@@ -129,7 +129,7 @@ const client = new MongoClient(uri, {
       const {id} =req.params
       console.log(id)
       const query = new ObjectId(id)
-      // const result = await issuesdetailsCollection.findOne({_id:id})
+     
        const result = await issuesdetailsCollection.findOne({_id:query})
       res.send({
         success :true,
@@ -226,11 +226,9 @@ const client = new MongoClient(uri, {
       const email =req.query.email
       // const category =req.query.category
       if (email) {
-        query.providerEmail =email
+        query["clinte.email"] = email
       }
-      // if (category) {
-      //   query.category=category
-      // }
+      
       const result =await paymentCollection.find(query).toArray()
       console.log(result)
       res.send(result)
