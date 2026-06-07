@@ -137,6 +137,38 @@ const client = new MongoClient(uri, {
       })
     });
 
+    app.patch('/issues/:id', verifyToken, async (req, res) => {
+      const { id } = req.params;
+      const query = { _id: new ObjectId(id) };
+      const updatedData = req.body;
+      
+      delete updatedData._id;
+
+      const result = await issuesdetailsCollection.updateOne(query, {
+        $set: updatedData
+      });
+      res.send({
+        success: true,
+        result
+      });
+    });
+
+    app.put('/issues/:id', verifyToken, async (req, res) => {
+      const { id } = req.params;
+      const query = { _id: new ObjectId(id) };
+      const updatedData = req.body;
+      
+      delete updatedData._id;
+
+      const result = await issuesdetailsCollection.updateOne(query, {
+        $set: updatedData
+      });
+      res.send({
+        success: true,
+        result
+      });
+    });
+
      app.delete('/issues/:id', async (req,res) => {
       const {id} =req.params
       const query = new ObjectId(id)
